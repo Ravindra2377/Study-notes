@@ -40,29 +40,32 @@ export default function NoteGenerator({ userId }: NoteGeneratorProps) {
             let extractedText = '';
 
             if (file.type === 'application/pdf') {
-                // Extract text from PDF on client side using pdfjs-dist
+                // Extract text from PDF on client side
                 setProgress(20);
                 setStatusMessage('Extracting text from PDF...');
 
-                const arrayBuffer = await file.arrayBuffer();
+                try {
+                    const arrayBuffer = await file.arrayBuffer();
 
-                // Dynamic import to avoid SSR issues
-                const pdfjsLib = await import('pdfjs-dist');
+                    // Use pdfjs-dist with legacy build (no worker needed)
+                    const pdfjsLib = await import('pdfjs-dist/legacy/build/pdf');
 
-                // Use unpkg CDN for worker (more reliable)
-                pdfjsLib.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.js`;
+                    const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
+                    const pdf = await loadingTask.promise;
+                    const numPages = pdf.numPages;
 
-                const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-                const numPages = pdf.numPages;
-
-                for (let i = 1; i <= numPages; i++) {
-                    const page = await pdf.getPage(i);
-                    const textContent = await page.getTextContent();
-                    const pageText = textContent.items
-                        .map((item: any) => item.str)
-                        .join(' ');
-                    extractedText += pageText + '\n';
-                    setProgress(20 + (i / numPages) * 30);
+                    for (let i = 1; i <= numPages; i++) {
+                        const page = await pdf.getPage(i);
+                        const textContent = await page.getTextContent();
+                        const pageText = textContent.items
+                            .map((item: any) => item.str)
+                            .join(' ');
+                        extractedText += pageText + '\n';
+                        setProgress(20 + (i / numPages) * 30);
+                    }
+                } catch (pdfError) {
+                    console.error('PDF parsing error:', pdfError);
+                    throw new Error('Failed to parse PDF. Please try a different file or use an image instead.');
                 }
             } else if (file.type.startsWith('image/')) {
                 // Use Tesseract.js for OCR on client side
