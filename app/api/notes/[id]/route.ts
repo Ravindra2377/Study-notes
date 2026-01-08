@@ -3,11 +3,12 @@ import { getNote } from '@/lib/storage';
 
 export async function GET(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
+    const { id } = await params;
+
     try {
-        const noteId = params.id;
-        const note = await getNote(noteId);
+        const note = await getNote(id);
 
         if (!note) {
             return NextResponse.json(
@@ -21,9 +22,9 @@ export async function GET(
             note,
         });
     } catch (error) {
-        console.error('Get note error:', error);
+        console.error('Error fetching note:', error);
         return NextResponse.json(
-            { error: 'Failed to retrieve note' },
+            { error: 'Failed to fetch note' },
             { status: 500 }
         );
     }
