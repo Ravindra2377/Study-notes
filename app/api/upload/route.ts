@@ -24,13 +24,13 @@ export async function POST(request: NextRequest) {
         let extractedText = '';
 
         if (fileType === 'application/pdf') {
-            // Extract text from PDF using dynamic import
+            // Extract text from PDF
             const arrayBuffer = await file.arrayBuffer();
             const buffer = Buffer.from(arrayBuffer);
 
             try {
-                // Dynamic import to avoid server-side issues
-                const pdf = await import('pdf-parse');
+                // Use eval to bypass build-time module resolution
+                const pdf = eval('require')('pdf-parse');
                 const data = await pdf(buffer);
                 extractedText = data.text;
             } catch (error) {
