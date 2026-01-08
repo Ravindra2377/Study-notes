@@ -16,6 +16,10 @@ export interface UserUsage {
 }
 
 export async function saveNote(userId: string, fileName: string, notes: any): Promise<string> {
+    if (!supabase) {
+        throw new Error('Supabase client not initialized. Please check environment variables.');
+    }
+
     const { data, error } = await supabase
         .from('notes')
         .insert({
@@ -31,6 +35,8 @@ export async function saveNote(userId: string, fileName: string, notes: any): Pr
 }
 
 export async function getNote(noteId: string): Promise<SavedNote | null> {
+    if (!supabase) return null;
+
     const { data, error } = await supabase
         .from('notes')
         .select('*')
@@ -49,6 +55,10 @@ export async function getNote(noteId: string): Promise<SavedNote | null> {
 }
 
 export async function getUserUsage(userId: string): Promise<UserUsage> {
+    if (!supabase) {
+        throw new Error('Supabase client not initialized');
+    }
+
     // Try to get existing user
     let { data, error } = await supabase
         .from('users')
@@ -99,6 +109,8 @@ export async function getUserUsage(userId: string): Promise<UserUsage> {
 }
 
 export async function incrementUsage(userId: string): Promise<void> {
+    if (!supabase) return;
+
     const usage = await getUserUsage(userId);
     await supabase
         .from('users')
@@ -107,6 +119,10 @@ export async function incrementUsage(userId: string): Promise<void> {
 }
 
 export async function upgradeToPremium(userId: string): Promise<void> {
+    if (!supabase) {
+        throw new Error('Supabase client not initialized');
+    }
+
     const { error } = await supabase
         .from('users')
         .update({ is_premium: true })
