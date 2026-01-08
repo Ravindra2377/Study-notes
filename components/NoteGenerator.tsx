@@ -40,33 +40,9 @@ export default function NoteGenerator({ userId }: NoteGeneratorProps) {
             let extractedText = '';
 
             if (file.type === 'application/pdf') {
-                // Extract text from PDF on client side
-                setProgress(20);
-                setStatusMessage('Extracting text from PDF...');
-
-                try {
-                    const arrayBuffer = await file.arrayBuffer();
-
-                    // Use pdfjs-dist with legacy build (no worker needed)
-                    const pdfjsLib = await import('pdfjs-dist/legacy/build/pdf');
-
-                    const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
-                    const pdf = await loadingTask.promise;
-                    const numPages = pdf.numPages;
-
-                    for (let i = 1; i <= numPages; i++) {
-                        const page = await pdf.getPage(i);
-                        const textContent = await page.getTextContent();
-                        const pageText = textContent.items
-                            .map((item: any) => item.str)
-                            .join(' ');
-                        extractedText += pageText + '\n';
-                        setProgress(20 + (i / numPages) * 30);
-                    }
-                } catch (pdfError) {
-                    console.error('PDF parsing error:', pdfError);
-                    throw new Error('Failed to parse PDF. Please try a different file or use an image instead.');
-                }
+                // PDF support temporarily disabled due to browser compatibility issues
+                setProgress(0);
+                throw new Error('PDF support is temporarily unavailable. Please convert your PDF pages to images (PNG/JPG) and upload those instead. You can take screenshots of each page or use a PDF-to-image converter online.');
             } else if (file.type.startsWith('image/')) {
                 // Use Tesseract.js for OCR on client side
                 setProgress(20);
