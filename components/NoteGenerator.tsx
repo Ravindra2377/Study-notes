@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Loader2, Sparkles, AlertCircle } from 'lucide-react';
 import FileUpload from './FileUpload';
 import NoteViewer from './NoteViewer';
-import { StudyNotes } from '@/lib/claude';
+import { StudyNotes } from '@/lib/gemini';
 import { createWorker } from 'tesseract.js';
 
 interface NoteGeneratorProps {

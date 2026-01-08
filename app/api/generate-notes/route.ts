@@ -1,6 +1,7 @@
+```typescript
 import { NextRequest, NextResponse } from 'next/server';
-import { generateStudyNotes } from '@/lib/claude';
-import { saveNote, getUserUsage, incrementUsage } from '@/lib/storage';
+import { generateStudyNotes } from '@/lib/gemini';
+import { getUserUsage, incrementUsage, saveNote } from '@/lib/storage';
 
 export async function POST(request: NextRequest) {
     try {
