@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
 
             try {
                 // Dynamic import to avoid server-side issues
-                const pdf = (await import('pdf-parse')).default;
+                const pdf = await import('pdf-parse');
                 const data = await pdf(buffer);
                 extractedText = data.text;
             } catch (error) {
