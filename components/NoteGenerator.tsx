@@ -40,9 +40,26 @@ export default function NoteGenerator({ userId }: NoteGeneratorProps) {
             let extractedText = '';
 
             if (file.type === 'application/pdf') {
-                // PDF support temporarily disabled due to browser compatibility issues
-                setProgress(0);
-                throw new Error('PDF support is temporarily unavailable. Please convert your PDF pages to images (PNG/JPG) and upload those instead. You can take screenshots of each page or use a PDF-to-image converter online.');
+                // Upload PDF and extract text on server
+                setProgress(20);
+                setStatusMessage('Uploading and extracting text from PDF...');
+
+                const formData = new FormData();
+                formData.append('file', file);
+
+                const uploadResponse = await fetch('/api/upload', {
+                    method: 'POST',
+                    body: formData,
+                });
+
+                const uploadData = await uploadResponse.json();
+
+                if (!uploadResponse.ok) {
+                    throw new Error(uploadData.error || 'Failed to process PDF');
+                }
+
+                extractedText = uploadData.text;
+                setProgress(50);
             } else if (file.type.startsWith('image/')) {
                 // Use Tesseract.js for OCR on client side
                 setProgress(20);

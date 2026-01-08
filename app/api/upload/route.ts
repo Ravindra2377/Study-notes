@@ -21,14 +21,37 @@ export async function POST(request: NextRequest) {
         }
 
         const fileType = file.type;
+        let extractedText = '';
 
-        // Validate file type
         if (fileType === 'application/pdf') {
+            // Extract text from PDF on server
+            const arrayBuffer = await file.arrayBuffer();
+            const buffer = Buffer.from(arrayBuffer);
+
+            try {
+                // Use pdf-parse-fork which works on Vercel
+                const pdfParse = (await import('pdf-parse-fork')).default;
+                const data = await pdfParse(buffer);
+                extractedText = data.text;
+            } catch (error) {
+                console.error('PDF parsing error:', error);
+                return NextResponse.json(
+                    { error: 'Failed to parse PDF file. Please try a different file.' },
+                    { status: 500 }
+                );
+            }
+
+            if (!extractedText || extractedText.trim().length < 50) {
+                return NextResponse.json(
+                    { error: 'Could not extract sufficient text from the PDF' },
+                    { status: 400 }
+                );
+            }
+
             return NextResponse.json({
                 success: true,
-                fileType: 'pdf',
+                text: extractedText,
                 fileName: file.name,
-                message: 'PDF uploaded successfully. Please process on client.',
             });
         } else if (fileType.startsWith('image/')) {
             return NextResponse.json({
@@ -51,9 +74,3 @@ export async function POST(request: NextRequest) {
         );
     }
 }
-
-export const config = {
-    api: {
-        bodyParser: false,
-    },
-};
