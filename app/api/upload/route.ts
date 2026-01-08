@@ -21,31 +21,20 @@ export async function POST(request: NextRequest) {
         }
 
         const fileType = file.type;
-        let extractedText = '';
 
+        // Validate file type
         if (fileType === 'application/pdf') {
-            // Extract text from PDF
-            const arrayBuffer = await file.arrayBuffer();
-            const buffer = Buffer.from(arrayBuffer);
-
-            try {
-                // Use eval to bypass build-time module resolution
-                const pdf = eval('require')('pdf-parse');
-                const data = await pdf(buffer);
-                extractedText = data.text;
-            } catch (error) {
-                console.error('PDF parsing error:', error);
-                return NextResponse.json(
-                    { error: 'Failed to parse PDF file' },
-                    { status: 500 }
-                );
-            }
+            return NextResponse.json({
+                success: true,
+                fileType: 'pdf',
+                fileName: file.name,
+                message: 'PDF uploaded successfully. Please process on client.',
+            });
         } else if (fileType.startsWith('image/')) {
-            // For images, we'll use Tesseract.js on the client side
-            // This endpoint will just validate the image
             return NextResponse.json({
                 success: true,
                 fileType: 'image',
+                fileName: file.name,
                 message: 'Image uploaded successfully. Please process with OCR on client.',
             });
         } else {
@@ -54,19 +43,6 @@ export async function POST(request: NextRequest) {
                 { status: 400 }
             );
         }
-
-        if (!extractedText || extractedText.trim().length < 50) {
-            return NextResponse.json(
-                { error: 'Could not extract sufficient text from the file' },
-                { status: 400 }
-            );
-        }
-
-        return NextResponse.json({
-            success: true,
-            text: extractedText,
-            fileName: file.name,
-        });
     } catch (error) {
         console.error('Upload error:', error);
         return NextResponse.json(

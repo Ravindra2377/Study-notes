@@ -33,32 +33,35 @@ export default function NoteGenerator({ userId }: NoteGeneratorProps) {
 
         setIsProcessing(true);
         setProgress(10);
-        setStatusMessage('Uploading file...');
+        setStatusMessage('Processing file...');
         setError('');
 
         try {
             let extractedText = '';
 
             if (file.type === 'application/pdf') {
-                // Upload PDF and extract text on server
+                // Extract text from PDF on client side using pdfjs-dist
                 setProgress(20);
                 setStatusMessage('Extracting text from PDF...');
 
-                const formData = new FormData();
-                formData.append('file', file);
+                const arrayBuffer = await file.arrayBuffer();
 
-                const uploadResponse = await fetch('/api/upload', {
-                    method: 'POST',
-                    body: formData,
-                });
+                // Dynamic import to avoid SSR issues
+                const pdfjsLib = await import('pdfjs-dist');
+                pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 
-                const uploadData = await uploadResponse.json();
+                const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+                const numPages = pdf.numPages;
 
-                if (!uploadResponse.ok) {
-                    throw new Error(uploadData.error || 'Failed to upload file');
+                for (let i = 1; i <= numPages; i++) {
+                    const page = await pdf.getPage(i);
+                    const textContent = await page.getTextContent();
+                    const pageText = textContent.items
+                        .map((item: any) => item.str)
+                        .join(' ');
+                    extractedText += pageText + '\n';
+                    setProgress(20 + (i / numPages) * 30);
                 }
-
-                extractedText = uploadData.text;
             } else if (file.type.startsWith('image/')) {
                 // Use Tesseract.js for OCR on client side
                 setProgress(20);
