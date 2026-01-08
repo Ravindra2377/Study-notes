@@ -1,4 +1,3 @@
-```typescript
 import { NextRequest, NextResponse } from 'next/server';
 import { generateStudyNotes } from '@/lib/gemini';
 import { getUserUsage, incrementUsage, saveNote } from '@/lib/storage';
