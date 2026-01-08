@@ -102,3 +102,19 @@ In Supabase Dashboard:
 ---
 
 **Ready to create your Supabase project? I'll open the website for you!**
+
+## ☁️ Deploying to Vercel
+
+If you are seeing the error `Supabase client not initialized` on your deployed Vercel app, it means your environment variables are missing on Vercel.
+
+**Steps to fix:**
+
+1. Go to your **Vercel Dashboard** and select your project.
+2. Click on **Settings** (top menu).
+3. Click on **Environment Variables** (left sidebar).
+4. Add the following variables (copy values from your `.env.local` or Supabase dashboard):
+   - `NEXT_PUBLIC_SUPABASE_URL`
+   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+5. **IMPORTANT:** After adding the variables, you must **Redeploy** for them to take effect.
+   - Go to **Deployments**.
+   - Click the three dots (⋮) on the latest deployment -> **Redeploy**.

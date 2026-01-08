@@ -17,7 +17,8 @@ export interface UserUsage {
 
 export async function saveNote(userId: string, fileName: string, notes: any): Promise<string> {
     if (!supabase) {
-        throw new Error('Supabase client not initialized. Please check environment variables.');
+        console.error('SaveNote: Supabase client is null');
+        throw new Error('Supabase client not initialized. Check server logs for missing variables (NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY).');
     }
 
     const { data, error } = await supabase
