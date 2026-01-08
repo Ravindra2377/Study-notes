@@ -1,6 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-// @ts-ignore
-const pdf = require('pdf-parse');
 
 export async function POST(request: NextRequest) {
     try {
@@ -26,11 +24,13 @@ export async function POST(request: NextRequest) {
         let extractedText = '';
 
         if (fileType === 'application/pdf') {
-            // Extract text from PDF
+            // Extract text from PDF using dynamic import
             const arrayBuffer = await file.arrayBuffer();
             const buffer = Buffer.from(arrayBuffer);
 
             try {
+                // Dynamic import to avoid server-side issues
+                const pdf = (await import('pdf-parse')).default;
                 const data = await pdf(buffer);
                 extractedText = data.text;
             } catch (error) {
