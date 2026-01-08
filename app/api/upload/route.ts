@@ -30,6 +30,7 @@ export async function POST(request: NextRequest) {
 
             try {
                 // Use pdf-parse-fork which works on Vercel
+                // @ts-ignore - No type declarations available
                 const pdfParse = (await import('pdf-parse-fork')).default;
                 const data = await pdfParse(buffer);
                 extractedText = data.text;
