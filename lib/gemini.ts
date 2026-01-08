@@ -46,14 +46,29 @@ Format your response as JSON with this structure:
         // Extract JSON from the response
         const jsonMatch = responseText.match(/\{[\s\S]*\}/);
         if (!jsonMatch) {
+            console.error('Gemini response:', responseText);
             throw new Error('Could not parse study notes from response');
         }
 
         const notes: StudyNotes = JSON.parse(jsonMatch[0]);
         return notes;
-    } catch (error) {
+    } catch (error: any) {
         console.error('Error generating study notes:', error);
-        throw new Error('Failed to generate study notes. Please try again.');
+
+        // Provide more specific error messages
+        if (error.message?.includes('API key')) {
+            throw new Error('GEMINI_API_KEY is not configured or invalid');
+        }
+
+        if (error.message?.includes('quota')) {
+            throw new Error('Gemini API quota exceeded. Please check your API limits.');
+        }
+
+        if (error.message?.includes('parse')) {
+            throw new Error('Could not parse study notes from AI response. Please try again.');
+        }
+
+        throw new Error(`Failed to generate study notes: ${error.message || 'Unknown error'}`);
     }
 }
 

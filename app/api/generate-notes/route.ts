@@ -55,9 +55,9 @@ export async function POST(request: NextRequest) {
     } catch (error: any) {
         console.error('Generate notes error:', error);
 
-        if (error.message?.includes('ANTHROPIC_API_KEY')) {
+        if (error.message?.includes('GEMINI_API_KEY')) {
             return NextResponse.json(
-                { error: 'AI service not configured. Please add your API key.' },
+                { error: 'AI service not configured. Please add your Gemini API key in Vercel environment variables.' },
                 { status: 500 }
             );
         }
